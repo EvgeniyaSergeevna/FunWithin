@@ -1,0 +1,31 @@
+﻿@model IEnumerable<string>
+
+    <div class="d-grid gap-2">
+        <a class="btn btn-outline-dark"
+           asp-action="List"
+           asp-controller="Review"
+           asp-route-type="">
+            Home
+        </a>
+    </div>
+    @foreach (string type in Model)
+    {
+    <div class="d-grid gap-2">
+        <a class="btn btn-block
+       @((type == ViewBag.SelectedType) ? " btn-dark" : " btn-outline-dark" )"
+           asp-action="List"
+           asp-controller="Review"
+           asp-route-type="@type"
+           asp-route-reviewPage="1">
+            @type
+        </a>
+    </div>
+    }
+<div class="d-grid gap-2">
+    <a class="btn btn-success"
+       asp-action="NewReview"
+       asp-controller="Review"
+       asp-route-type="">
+        New review
+    </a>
+</div>

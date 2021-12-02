@@ -1,0 +1,51 @@
+﻿@model ReviewListViewModel
+
+<div class="col-sm-4">
+    <div class="container w-40">
+        <label>Sort by:</label>
+        <table class="table">
+            <tr>
+                <th>
+                    @Html.ActionLink("Publication date", "List",
+                   new { sortBy = ViewBag.DateSort })
+                </th>
+                <th>
+                    @Html.ActionLink("Likes", "List",
+                  new { sortBy = ViewBag.LikeSort })
+                </th>
+            </tr>
+        </table>
+    </div>
+</div>
+@foreach (var r in Model.Reviews)
+{
+    <div class="card card-outline-primary m-1 p-1">
+        <div class="p-1 bg-gradient" style="background-color: #e3f2fd; text-decoration-color: #2331">
+            <h3>
+                <a>@r.Name</a>
+            </h3>
+        </div>
+        <h5>
+            <span class="badge bg-light text-dark">
+                <small>Author: @r.Author</small>
+            </span>
+        </h5> 
+        @foreach (string p in r.ReviewText)
+        {
+            <div class="card-text p-1" style="white-space: pre-line">@p</div>
+        }
+        <div class="d-grid gap-2 d-md-block">
+            <button class="btn btn-sm btn-dark" type="button">Delete review</button>
+        </div>
+        <span class="badge bg-light text-dark">
+            <small>Review author: @r.ReviewAuthor &nbsp</small>
+            <small>&nbsp @r.Type Grade: @r.AverageItemRating </small>
+            <small>&nbsp Likes: @r.Likes </small>
+        </span>
+    </div>
+}
+<div page-model="@Model.PagingInfo" page-action="List" page-classes-enabled="true"
+     page-class="btn" page-class-normal="btn-secondary"
+     page-class-selected="btn" style="background-color: #e3f2fd" page-url-category="@Model.CurrentType"
+     class="btn-group pull-right m-1">
+</div>
