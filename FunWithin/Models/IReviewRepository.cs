@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 
 namespace FunWithin.Models
 {
@@ -9,6 +6,6 @@ namespace FunWithin.Models
     {
         IQueryable<Review> Reviews { get; }
         void SaveReview(Review review);
-        
+        Review DeleteReview(int ID);
     }
 }

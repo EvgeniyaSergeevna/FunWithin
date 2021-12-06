@@ -10,8 +10,8 @@
 <div class="my-dropzone"></div>
 
 <script>
-    // Dropzone has been added as a global variable.
-    const dropzone = new Dropzone("div.my-dropzone", { url: "/file/post" });
+    
+    const dropzone = new Dropzone("dropzone", { url: "/Review/BatchUpload" });
 </script>
 
 <head>
@@ -23,6 +23,7 @@
     <div asp-validation-summary="All" class="text-danger"></div>
     <form asp-action="NewReview" method="post">
         <div class="form-group">
+           
             <label>Choose the type of work:</label>
             <select asp-for="Type" class="form-select" aria-label="Default select type">
                 <option value="Book">Book</option>
@@ -49,9 +50,6 @@
             <label>Author:</label><input asp-for="Author" class="form-control" />
         </div>
         <div class="form-group">
-            <label>Your name:</label><input asp-for="ReviewAuthor" class="form-control" />
-        </div>
-        <div class="form-group">
             <label>Review text:</label>
             <textarea asp-for="ReviewText" class="form-control" rows="5"></textarea>
         </div>
@@ -69,7 +67,7 @@
 
         <div class="form-group">
             <label>You can add cover, photos or screenshots to your review: @ViewBag.DirPath</label>
-            <div id="dropCover" class="dropzone" enctype="multipart/form-data">
+            <div id="dropzone" class="dropzone" enctype="multipart/form-data">
 
                 <div class="dz-default dz-message">
                     Drop image here. 
@@ -78,7 +76,7 @@
 
         </div>
         <script>
-            Dropzone.options.dropCover = {
+            Dropzone.options.dropzone = {
                 url: "@Url.Action("BatchUpload")",
                 addRemoveLinks: true,
                 autoprocessQueue: false,
@@ -86,9 +84,9 @@
                 parallelUploads: 3,
                 init: function () {
                     var submitButton = document.querySelector("#submit-all")
-                    dropCover = this;
+                    dropzone = this;
                     submitButton.addEventListener("click", function () {
-                        dropCover.processQueue();
+                        dropzone.processQueue();
                     });
                     this.on("complete", function (data) {
                         if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {

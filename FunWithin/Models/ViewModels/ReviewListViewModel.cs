@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using FunWithin.Models;
 
 namespace FunWithin.Models.ViewModels
 {

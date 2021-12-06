@@ -24,8 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="Views\Admin\LogIn.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="config.yml" />
-    <None Remove="Dockerfile" />
     <None Remove="DropzoneFileUpload.aspx" />
   </ItemGroup>
 
@@ -34,6 +37,8 @@
     <PackageReference Include="jQuery" Version="3.6.0" />
     <PackageReference Include="jQuery.UI" Version="1.12.1.1" />
     <PackageReference Include="jQuery.UI.Combined" Version="1.13.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.12">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -58,6 +63,12 @@
 	
   <ItemGroup>
     <Folder Include="Views\Home\" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <None Update="app.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FunWithin.Models;
 using System.Linq;
-using System.IO;
-using System.Web;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -13,20 +13,19 @@ namespace FunWithin.Controllers
     public class ReviewController : Controller
     {
         private IReviewRepository repository;
-        IWebHostEnvironment environment;
-        //private Review review;
+        private UserManager<User> userManager;
         public int PageSize = 4;
 
-        public ReviewController(IReviewRepository repo, IWebHostEnvironment env)
+        public ReviewController(IReviewRepository repo, UserManager<User> usrManager)
         {
             repository = repo;
-            environment = env;
+            userManager = usrManager;
         }
         public ViewResult List(string type, string sortBy, int reviewPage = 1)
         {
             ViewBag.DateSort = (String.IsNullOrEmpty(sortBy) | sortBy == "PublicationDate") ?
                 "" : "Date";
-            ViewBag.LikeSort = "Like";
+            ViewBag.LikeSort = "Likes";
             var reviews = repository.Reviews.Where(r => type == null || r.Type == type);
 
             reviews = SwitchSort(sortBy, reviews);
@@ -47,13 +46,54 @@ namespace FunWithin.Controllers
                 CurrentType = type,
             });
         }
+        [Authorize]
+        [HttpPost]
+        public IActionResult Like(int ID)
+        {
+            
+            Review review = GetReviewByID(ID);
+            if (review != null)
+            {
+                review.Likes++;
+                repository.SaveReview(review);
+            }
+            return RedirectToAction(nameof(List));
+        }
+
+        [Authorize]
+        [HttpPost]
+        public IActionResult Rate(int ID, int grade)
+        {
+            Review review = GetReviewByID(ID);
+            if (review != null)
+            {
+                review.ItemGrade.Add(grade);
+                review.AverageItemGrade = Convert.ToDecimal(review.ItemGrade.Sum(g => g)) / review.ItemGrade.Count;
+                review.AverageItemGrade = Decimal.Round(review.AverageItemGrade, 1);
+                repository.SaveReview(review);
+            }
+            return RedirectToAction(nameof(List));
+        }
+        public ViewResult ShowReview(int ID) =>
+            View(GetReviewByID(ID));
+        [HttpPost]
+        public IActionResult ShowReview(Review review)
+        {
+
+            return View(review);
+        }
+        private Review GetReviewByID(int ID)
+        {
+            return repository.Reviews
+                .FirstOrDefault(r => r.ID == ID);
+        }
         private static IQueryable<Review> SwitchSort(string sortBy, IQueryable<Review> Reviews)
         {
             switch (sortBy)
             {
-                case "Like":
+                case "Likes":
                     Reviews = Reviews.OrderByDescending(r => r.Likes);
-                    break;         
+                    break;
                 default:
                     Reviews = Reviews.OrderByDescending(r => r.PublicationDate);
                     break;
@@ -62,10 +102,12 @@ namespace FunWithin.Controllers
         }
         public ViewResult NewReview() => View(new Review());
         [HttpPost]
-        public IActionResult NewReview(Review review)
+        public IActionResult NewReview(Review review, User user)
         {
             if (ModelState.IsValid)
             {
+                review.ReviewAuthor = user.UserName;
+                review.ReviewAuthorID = user.Id;
                 repository.SaveReview(review);
                 return RedirectToAction(nameof(Completed));
             }
@@ -74,7 +116,7 @@ namespace FunWithin.Controllers
                 return View(review);
             }
         }
-        [HttpGet]
+            [HttpGet]
         public IActionResult Autocomlplete()
         {
             var inputGenre = HttpContext.Request.Query["term"].ToString();
@@ -94,55 +136,6 @@ namespace FunWithin.Controllers
         {
             return View();
         }
-        [HttpPost]
-        public ActionResult BatchUpload()
-        {
-            bool uploadSuccessfully = true;
-            int count = 0;
-            string  msg = "", 
-                    fileName = "", 
-                    fileExtension = "", 
-                    filePath = "", 
-                    fileNewName = "";
-
-            try
-            {
-                string directoryPath = environment.WebRootPath + "/Content/cover/ ";
-                ViewBag.DirPath = directoryPath;
-                if(!Directory.Exists(directoryPath))
-                { Directory.CreateDirectory(directoryPath); }
-                foreach(var f in Request.Form.Files)
-                {
-                    //IFormFile file = Request.Form.Files[f];
-                    if (f.Length > 0)
-                    {
-                        fileName = f.FileName;
-                        fileExtension = Path.GetExtension(fileName);
-                        fileNewName = Guid.NewGuid().ToString() + fileExtension;
-                        filePath = Path.Combine(directoryPath, fileNewName);
-                        using(Stream fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            f.CopyToAsync(fileStream);
-                        }
-                        count++;
-                        
-                    }
-                }
-                    
-            }
-            catch(Exception e)
-            {
-                msg = e.Message;
-                uploadSuccessfully = false;
-            }
-            return Json(new
-            {
-                Result = uploadSuccessfully,
-                Count = count,
-                Message = msg
-            });
-        }
     }
-
-    }
+}
 

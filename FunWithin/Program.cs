@@ -12,8 +12,9 @@ using System.Threading.Tasks;
 
 namespace FunWithin
 {
+    
     public class Program
-    {
+    { /*
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
@@ -24,8 +25,8 @@ namespace FunWithin
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+        */
 
-/*
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
@@ -40,6 +41,6 @@ namespace FunWithin
                             Convert.ToInt32(Environment.GetEnvironmentVariable("PORT")));
                     }).UseStartup<Startup>();
                 });
-*/
+
     }
 }

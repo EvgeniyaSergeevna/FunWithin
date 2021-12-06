@@ -1,0 +1,126 @@
+﻿@model Review
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+<link rel="stylesheet"
+      href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css"
+      type="text/css" />
+
+<script>
+    const dropzone = new Dropzone("dropzone", { url: "/Admin/BatchUpload" });
+</script>
+
+@{
+    ViewBag.Title = "Edit review";
+    Layout = "_AdminLayout";
+}
+
+<form asp-action="Edit" asp-controller="Admin" method="post">
+    <input type="hidden" asp-for="ID" />
+    <div class="form-group">
+        <div class="form-group">
+            <label asp-for="Type"></label>
+            <div><span asp-validation-for="Type" class="text-danger"></span></div>
+            <select asp-for="Type" class="form-select" aria-label="Default select type">
+                <option value="Book">Book</option>
+                <option value="Game">Game</option>
+                <option value="Movie">Movie</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label asp-for="Name"></label>
+            <div><span asp-validation-for="Name" class="text-danger"></span></div>
+            <input asp-for="Name" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label asp-for="Genre"></label>
+            <div><span asp-validation-for="Genre" class="text-danger"></span></div>
+            <input asp-for="Genre" class="form-control" id="genres" />
+        </div>
+        @section scripts{
+            <script>
+                $(function () {
+                    $("#genres").autocomplete({
+                        source: "/Review/Autocomlplete"
+                    });
+                });
+            </script>}
+        <div class="form-group">
+            <label asp-for="Author"></label>
+            <div><span asp-validation-for="Author" class="text-danger"></span></div>
+            <input asp-for="Author" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ReviewText"></label>
+            <div><span asp-validation-for="ReviewText" class="text-danger"></span></div>
+            <textarea asp-for="ReviewText" class="form-control" rows="5"></textarea>
+        </div>
+        <div class="form-group">
+            <label asp-for="ItemGrade[0]">Item grade</label>
+            <div><span asp-validation-for="ItemGrade" class="text-danger"></span></div>
+            <select asp-for="ItemGrade[0]" class="form-select" aria-label="Default select grade">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>You can add cover, photos or screenshots to your review: @ViewBag.DirPath</label>
+            <div id="dropzone" class="dropzone" enctype="multipart/form-data">
+
+                <div class="dz-default dz-message">
+                    Drop image here.
+                </div>
+            </div>
+
+        </div>
+        <script>
+            Dropzone.options.dropzone = {
+                url: "@Url.Action("BatchUpload")",
+                addRemoveLinks: true,
+                autoprocessQueue: false,
+                uploadMultiple: true,
+                parallelUploads: 3,
+                init: function () {
+                    var submitButton = document.querySelector("#submit-all")
+                    dropzone = this;
+                    submitButton.addEventListener("click", function () {
+                        dropzone.processQueue();
+                    });
+                    this.on("complete", function (data) {
+                        if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
+                            var res = eval('(' + data.xhr.responseText + ')');
+                            var msg;
+                            if (res.Result) {
+                                msg = "Success upload" + res.Count + "images!";
+                            }
+                            else {
+                                msg = "Error" + res.Message;
+                            }
+                            $("#message").text(msg);
+                            $("#dialog").dialog("open");
+                        }
+
+                    });
+                    this.on("removedfile", function () {
+                        if (this.getAcceptedFiles().length === 0) {
+                            $("#submit-all").attr("disabled", true);
+                        }
+
+                    });
+                }
+            };
+        </script>
+        <div class="text-center">
+            <input class="btn" style="background-color: #e3f2fd" type="submit" value="Submit" id="submit-all" />
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </div>
+
+
+    </div>
+</form>

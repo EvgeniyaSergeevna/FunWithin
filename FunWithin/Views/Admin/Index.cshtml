@@ -1,0 +1,61 @@
+﻿@model Admin
+@{
+    ViewBag.Title = "Reviews administration";
+    Layout = "_AdminLayout";
+}
+
+<div>
+    <h4>Welcome to your Personal page!</h4>
+
+
+    <div class="text-center">
+        
+        <a asp-action="Create" class="btn btn-success">
+            <input type="hidden" name="user" value="@Model.currentUser" />
+        Add new review</a>
+    </div>
+</div>
+@foreach (var r in Model.Reviews)
+{
+    <div class="card card-outline-primary m-1 p-1">
+        <div class="p-1 bg-gradient" 
+             style="background-color: #e3f2fd; 
+             text-decoration-color: #2331">
+            <h3>
+                <a>@r.Name</a>
+            </h3>
+        </div>
+        <h5>
+            <span class="badge bg-light text-dark">
+                <small>Author: @r.Author</small>
+            </span>
+        </h5>
+        <div class="card-text p-1" style="white-space: pre-line">@r.ReviewText</div>
+        <form asp-action="Delete" method="post">
+            <a asp-action="Edit" class="btn btn-outline-secondary btn-sm"
+               asp-route-ID="@r.ID"
+               name="ID"
+               value ="@r.ID">Edit</a>
+            <input type="hidden" name="review" value="@r" />
+            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+        </form>
+        <span class="badge bg-light text-dark">
+            <small>Review author: @r.ReviewAuthor &nbsp</small>
+            <small>&nbsp @r.Type Grade: @r.AverageItemGrade </small>
+            <small>&nbsp Likes: @r.Likes </small>
+            <small>&nbsp Publication date: @r.PublicationDate.ToUniversalTime() </small>
+        </span>
+    </div>
+}
+<form asp-action="DeleteUser" asp-route-id="@Model.currentUser.Id" method="post">
+    <a class="btn btn-outline-secondary btn-sm" asp-action="EditUser"
+       asp-route-id="@Model.currentUser.Id">Edit user</a>
+    <button type="submit" class="btn btn-sm btn-outline-danger">Delete user</button>
+    @if(User?.Identity?.IsAuthenticated ?? false)
+            {
+                <a asp-action="Logout" asp-controller="Account"
+                   class="btn btn-danger">Logout</a>
+            }
+</form>
+
+

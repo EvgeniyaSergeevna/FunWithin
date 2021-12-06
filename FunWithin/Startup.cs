@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using FunWithin.Models;
-using FunWithin.Controllers;
+using Microsoft.AspNetCore.Identity;
 
 namespace FunWithin
 {
@@ -18,8 +18,22 @@ namespace FunWithin
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContextPostgres>(options =>
-            options.UseNpgsql(Configuration.GetConnectionString("FunWithin2")));
-            //services.AddSingleton<MetaWebHostinhEnvironment>();
+            options.UseNpgsql(Configuration.GetConnectionString("FunWithin")));
+            services.AddDbContext<AppIdentityDbContext>(options =>
+            options.UseNpgsql(Configuration.GetConnectionString("FunWithinIdentity")));
+            services.AddIdentity<User, IdentityRole>(options => {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireDigit = true;
+
+            })
+                .AddEntityFrameworkStores<AppIdentityDbContext>()
+                .AddDefaultTokenProviders();
+            
+
             services.AddTransient<IReviewRepository, EFReviewRepository>();
             services.AddMvc(option => option.EnableEndpointRouting = false);
         }
@@ -33,6 +47,7 @@ namespace FunWithin
             app.UseDeveloperExceptionPage();
             app.UseStatusCodePages();
             app.UseStaticFiles();
+            app.UseAuthentication();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
